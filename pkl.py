@@ -28,6 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 from math import ceil, floor, log
+from os import remove
 
 def check(seq, low_mem=False, temp_dir=None):
     """ Checks if seq is a P(K)L sequence.
@@ -46,16 +47,25 @@ def check(seq, low_mem=False, temp_dir=None):
         from shutil import rmtree
         from tempfile import mkdtemp
         from os.path import join
+        from pickle import dumps
+        from os import remove
+        dumps_wrapper = lambda x: dumps(x, 0).decode("utf-8")
         temp_dir = mkdtemp(dir=temp_dir)
+    else:
+        dumps_wrapper = lambda x: x
     for n in range(1, ceil(log(L, K)) + 1):
         if low_mem:
+            try:
+                remove(join(temp_dir, "pkl.sqlite"))
+            except FileNotFoundError:
+                pass
             counts = SqliteDict(join(temp_dir, "pkl.sqlite"), autocommit=True)
         else:
             counts = {}
         for i in range(L):
-            current_substring = tuple(seq[i:i + n] + seq[
+            current_substring = dumps_wrapper(tuple(seq[i:i + n] + seq[
                     :i + n - L if i + n - L > 0 else 0
-                ])
+                ]))
             if current_substring not in counts:
                 counts[current_substring] = 1
             else:
@@ -77,18 +87,29 @@ def check(seq, low_mem=False, temp_dir=None):
                     if low_mem:
                         rmtree(temp_dir)
                     return False
+        if low_mem:
+            counts.close()
     if low_mem:
         rmtree(temp_dir)
     return True
 
+def help_formatter(prog):
+    """ So formatter_class's max_help_position can be changed. """
+    return argparse.HelpFormatter(prog, max_help_position=40)
+
 if __name__ == "__main__":
     import argparse
-    from sys import stdin
-    parser = argparse.ArgumentParser()
+    from sys import stdin, stderr
+    _intro = ("Specify either 'check' or 'construct' to check that a sequence "
+              "is a P(K)L sequence or construct one, respectively.")
+    parser = argparse.ArgumentParser(
+            description=_intro,
+            formatter_class=help_formatter
+        )
     subparsers = parser.add_subparsers(
             help=("construct a P(K)L sequence or check that a sequence is a "
                   "P(K)L sequence"),
-            dest='command'
+            dest="subparser_name"
         )
     check_parser = subparsers.add_parser("check")
     construct_parser = subparsers.add_parser("construct")
@@ -123,10 +144,14 @@ if __name__ == "__main__":
             metavar='<int>',
             help='sequence length')
     args = parser.parse_args()
-    if args.command == 'check':
-        with open(args.input) if args.input != '-' else stdin as input_stream:
-            seq = input_stream.read().strip().split(args.separator)
+    if args.subparser_name is None:
+        print(_intro, file=stderr)
+    if args.subparser_name == "check":
+        with stdin as input_stream:
+            if not args.separator:
+                seq = list(input_stream.read().strip())
+            else:
+                input_stream.read().strip().split(args.separator)
         if not check(seq, low_mem=args.low_memory, temp_dir=args.temp_dir):
-            raise RuntimeError('Input is NOT a P(K)L sequence.')
-        print("Input is a P(K)L sequence", file=stderr)
-
+            raise RuntimeError('Input is not a P(K)L sequence.')
+        print("Input is a P(K)L sequence.", file=stderr)
