@@ -241,6 +241,7 @@ def pkl_via_lempels_lift(K, L):
                 else:
                     streak = 0
             j = 0
+            ops_finished = 0
             while j < seq_length + digit:
                 if seq[j] % K == seq[j-1] % K:
                     streak += 1
@@ -248,6 +249,9 @@ def pkl_via_lempels_lift(K, L):
                     streak = 0
                 if streak == streak_length and 1 <= seq[j] <= digit:
                     seq.insert(seq[j], j + 1)
+                    ops_finished += 1
+                    if ops_finished == digit:
+                        break
                     j += 1
                 j += 1
     return seq
