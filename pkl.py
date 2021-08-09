@@ -231,24 +231,25 @@ def pkl_via_lempels_lift(K, L):
         # Lift and join
         seq = joined_lift(lempels_lift(seq, K))
         # Lengthen seq
-        seq_length = len(seq)
-        streak_length = floor(log(seq_length, K))
-        streak = 0
-        for j in range(seq_length - streak_length + 2, seq_length):
-            if seq[j] % K == seq[j-1] % K:
-                streak += 1
-            else:
-                streak = 0
-        j = 0
-        while j < seq_length + digit:
-            if seq[j] % K == seq[j-1] % K:
-                streak += 1
-            else:
-                streak = 0
-            if streak == streak_length and 1 <= seq[j] <= digit:
-                seq.insert(seq[j], j + 1)
+        if digit:
+            seq_length = len(seq)
+            streak_length = floor(log(seq_length, K))
+            streak = 0
+            for j in range(seq_length - streak_length + 2, seq_length):
+                if seq[j] % K == seq[j-1] % K:
+                    streak += 1
+                else:
+                    streak = 0
+            j = 0
+            while j < seq_length + digit:
+                if seq[j] % K == seq[j-1] % K:
+                    streak += 1
+                else:
+                    streak = 0
+                if streak == streak_length and 1 <= seq[j] <= digit:
+                    seq.insert(seq[j], j + 1)
+                    j += 1
                 j += 1
-            j += 1
     return seq
 
 def help_formatter(prog):
