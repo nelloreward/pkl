@@ -34,9 +34,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from math import ceil, floor, log
+from math import ceil, floor, log, gcd
 from os import remove
-from fractions import gcd
 from collections import deque, defaultdict
 from itertools import combinations
 
@@ -138,7 +137,7 @@ def lempels_lift(seq, K):
         mod_sum = (seq[i] + mod_sum) % K
     repetitions = K // gcd(mod_sum, K)
     lift = []
-    for j in range(K * L // repetitions):
+    for j in range(K // repetitions):
         lift.append(deque(0 for _ in range(repetitions * L)))
         lift[-1][-1] = j
         for i in range(L * repetitions):
@@ -220,7 +219,7 @@ def cycle_join(strings, spanning_trees):
     joined = []
     last_head = None
     while spanning_trees:
-        tail, head, tail_start, head_start = spanning_trees.pop()
+        tail, head, tail_start, head_start = spanning_trees.popleft()
         if tail != last_head:
             # Start new string
             joined.append(strings[tail][tail_start:]
@@ -366,13 +365,13 @@ def hard_spanning_trees(strings, streak_length, K, with_constant=False):
             tail = stack.pop()
         except IndexError:
             try:
-                stack.push(not_seen.pop())
+                stack.append(not_seen.pop())
             except KeyError:
                 # Everything's been seen
                 break
         for head in graph[tail]:
             if head[0] in not_seen:
-                stack.push(head[0])
+                stack.append(head[0])
                 not_seen.remove(head[0])
                 traversal.append((tail,) + head)
     return traversal
@@ -397,9 +396,10 @@ def joined_lift(lift, digit, K):
     else:
         # Hard case where the join is performed on lifts of the longest string
         # of 1s plus an unspecified character on either side
+        print(lift)
         assert len(lift) == K # This is true by a lemma in the paper
         total_length = sum(map(len, lift))
-        joined = cycle_join(strings, hard_spanning_trees(
+        joined = cycle_join(lift, hard_spanning_trees(
                     lift, total_length, K, with_constant=True
                 ))
         if len(joined) > 1:
@@ -425,10 +425,10 @@ def pkl_via_lempels_lift(K, L):
     """
     # Decompose into base-K representation
     digits = length_in_base(L, K)
-    seq = deque(range(1, digit + 1))
+    seq = deque(range(1, digits[0] + 1))
     for i, digit in enumerate(digits[1:]):
         # Lift and join
-        seq = joined_lift(lempels_lift(seq, K))
+        seq = joined_lift(lempels_lift(seq, K), digit, K)
         # Lengthen seq
         if digit:
             seq_length = len(seq)
@@ -441,8 +441,8 @@ def pkl_via_lempels_lift(K, L):
                     streak = 0
             j = 0
             ops_finished = 0
-            while j < seq_length + digit:
-                if seq[j] % K == seq[j-1] % K:
+            while j < seq_length + streak_length:
+                if seq[j % seq_length] % K == seq[(j-1) % streak_length] % K:
                     streak += 1
                 else:
                     streak = 0
@@ -508,6 +508,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.subparser_name is None:
         print(_intro, file=stderr)
+        quit()
     if args.subparser_name == "check":
         with stdin as input_stream:
             if not args.separator:
@@ -519,3 +520,5 @@ if __name__ == "__main__":
         print("Input is a P(K)L-sequence.", file=stderr)
     else:
         assert args.subparser_name == "construct"
+        seq = pkl_via_lempels_lift(args.alphabet_size, args.sequence_length)
+        print(seq)
