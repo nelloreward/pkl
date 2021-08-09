@@ -9,9 +9,8 @@ A. Nellore and R. Ward. "Arbitrary-length analogs to de Bruijn sequences"
 and verifying that constructed sequences are P(K)L-sequences.
 
 The implementation here is didactic. While it is uses O(L) space and takes
-O(L log K) time, as discussed in the paper above, there are several obvious
-optimizations that can be made, notably in searching for substrings at which to
-join strings.
+O(L log K) time, as discussed in the paper above, several optimizations could
+be made.
 
 MIT License
 
@@ -38,7 +37,8 @@ SOFTWARE.
 from math import ceil, floor, log
 from os import remove
 from fractions import gcd
-from collections import deque
+from collections import deque, defaultdict
+from itertools import combinations
 
 def check(seq, low_mem=False, temp_dir=None):
     """ Checks if a (circular) string is a P(K)L-sequence.
@@ -148,11 +148,15 @@ def lempels_lift(seq, K):
 def easy_join(lift, streak_length):
     """ Joins strings in lift on (x, x + 1, ..., x + streak_length - 1)
 
-        Warning: string of form (x, x + 1, ..., x + streak_length - 1) and
-        length streak_length should be unique to each string in lift
+        WARNING: string of form (x, x + 1, ..., x + streak_length - 1) and
+        length streak_length should be unique to each string in lift and
+        present in each string at same position
 
         streak_length: length of join string
         lift: strings to join, where the nth string is 1 + the (n-1)th string
+
+        Return value: deque representing single circular string resulting from
+            join operations
     """
     string_length = len(lift[0])
     total_strings = len(lift)
@@ -170,7 +174,7 @@ def easy_join(lift, streak_length):
         else:
             streak = 0
     current = 0
-    seq = deque()
+    joined = deque()
     # Join Lempel's lift shift-rule style
     for i in range(total_length):
         if lift[current % total_strings][
@@ -182,25 +186,206 @@ def easy_join(lift, streak_length):
             streak += 1
         else:
             streak = 0
-        seq.append(lift[current % total_strings][i - current])
+        joined.append(lift[current % total_strings][i - current])
         if streak == streak_length:
             # String of form (x, x+1, ..., x+n) found; continue on next
             # string
             current += 1
             # Streak should be reset
             streak = 0
-    return seq
+    return joined
 
-def hard_join()
+def cycle_join(strings, spanning_trees):
+    """ Joins circular strings in a Lempel's lift according to spanning trees
 
-def joined_lift(lift, digit):
+        Spanning trees are of "join graph" from function description of
+        spanning_trees(). SIDE EFFECT: spanning_trees gets eaten
+
+        strings: list of deques representing circular strings to join
+        spanning_trees: deque of tuples, each representing an edge and of the
+            form
+
+            (index of start vertex, index of end vertex,
+             start pos of join substring in start vertex string,
+             start pos of join substring in end vertex string).
+
+            Edges should be ordered as the result of appending depth-first
+            traversals of the spanning trees to a deque.
+
+        Return value: list of deques, each giving a joined string for a
+            spanning tree
+    """
+    # For keeping track of where joins of previously added strings are
+    substring_displacements = defaultdict(lambda: defaultdict[int])
+    joined = []
+    last_head = None
+    while spanning_trees:
+        tail, head, tail_start, head_start = spanning_trees.pop()
+        if tail != last_head:
+            # Start new string
+            joined.append(strings[tail][tail_start:]
+                          + strings[tail][:tail_start]
+                          + strings[head][head_start:]
+                          + strings[head][:head_start])
+            substring_displacements[tail][tail_start] = 0
+            substring_displacements[head][head_start] = len(strings[tail])
+            seen = set(tail, head)
+        else:
+            # Rotate string and concatenate
+            shift = -substring_displacements[tail][tail_start]
+            joined[-1].rotate(shift)
+            length = len(joined[-1])
+            for vertex in seen:
+                for pos in substring_displacements[vertex]:
+                    substring_displacements[vertex][pos] = (
+                            substring_displacements[vertex][pos] + shift
+                        ) % length
+            joined[-1].extend(strings[head][head_start:])
+            joined[-1].extend(strings[head][:head_start])
+            seen.add(head)
+            substring_displacements[head][head_start] = length
+        last_head = head
+    return joined
+
+def hard_spanning_trees(strings, streak_length, K, with_constant=False):
+    """ Gives spanning trees of connected components of join graph of strings
+
+        The "join graph" of strings is a graph where each vertex represents a
+        string from strings, and each (undirected) edge is labeled by
+
+        (when with_constant=True)
+        a substring of the form (y, x, x + 1, ..., x + streak_length - 1) or
+        (x, x + 1, ..., x + streak_length - 1, y)
+
+        (when with_constant=False)
+        a substring of the form (x, x+1, ..., x + streak_length - 1)
+
+        at which a join can be performed between the strings corresponding to
+        the vertices it connects.
+
+        strings: list of deques representing circular strings
+        streak_length: length of streak in substring
+            (x, x + 1, ... , x + streak_length - 1)
+        K: size of alphabet
+
+        Return value: deque of tuples, each representing an edge of a spanning
+            tree and of the form
+
+            (index of start vertex, index of end vertex,
+             start pos of join substring in start vertex string,
+             start pos of join substring in end vertex string).
+
+            Edges are ordered from appending depth-first traversals of the
+            spanning trees to a deque.
+    """
+    string_count = len(strings)
+    if with_constant:
+        seen_next = defaultdict(list) # dictionary mapping first character of
+                                      # streak and character seen AFTER streak
+                                      # to list of tuples, each in format
+                                      # (vertex index, substring position)
+        seen_prev = defaultdict(list) # dictionary mapping first character of
+                                      # streak and character seen BEFORE streak
+                                      # to list of tuples, each in format
+                                      # (vertex index, substring position)
+        for i in range(string_count):
+            string_length = len(strings[i])
+            streak = 0
+            # So streaks can be detected starting at first character
+            for j in range(string_length - streak_length + 2, string_length):
+                if strings[i][j % string_length] % K == (strings[i][
+                        (j - 1) % string_length
+                    ] - 1) % K:
+                    streak += 1
+                else:
+                    before_char = strings[i][(j - 1) % string_length]
+                    start_char = strings[i][j % string_length]
+                    streak_start = j
+                    streak = 0
+            for j in range(string_length):
+                if strings[i][j % string_length] % K == (strings[i][
+                        (j - 1) % string_length
+                    ] - 1) % K:
+                    streak += 1
+                else:
+                    before_char = strings[i][(j - 1) % string_length]
+                    start_char = strings[i][j % string_length]
+                    streak_start = j
+                    streak = 0
+                if streak == streak_length:
+                    seen_next[
+                            (start_char, strings[i][(j + 1) % string_length])
+                        ].append(i, streak_start)
+                    seen_prev[
+                            (start_char, before_char)
+                        ].append(i, (streak_start - 1) % string_length)
+    else:
+        seen = defaultdict(list) # dictionary mapping first character of streak
+                                 # to list of tuples, each in the format
+                                 # (vertex index, substring position)
+        for i in range(string_count):
+            string_length = len(strings[i])
+            streak = 0
+            # So streaks can be detected starting at first character
+            for j in range(string_length - streak_length + 2, string_length):
+                if strings[i][j % string_length] % K == (strings[i][
+                        (j - 1) % string_length
+                    ] - 1) % K:
+                    streak += 1
+                else:
+                    start_char = strings[i][j % string_length]
+                    streak_start = j
+                    streak = 0
+            for j in range(string_length):
+                if strings[i][j % string_length] % K == (strings[i][
+                        (j - 1) % string_length
+                    ] - 1) % K:
+                    streak += 1
+                else:
+                    start_char = strings[i][j % string_length]
+                    streak_start = j
+                    streak = 0
+                if streak == streak_length:
+                    seen[start_char].append(i, streak_start)
+    # Construct graph
+    graph = [[] for _ in range(string_count)] # List of lists of (head index,
+                                              # start pos of tail,
+                                              # start pos of head)
+    for seen in (seen_prev, seen_next):
+        for substring in seen:
+            for combo in combinations(seen[substring], 2):
+                graph[combo[0][0]].append(
+                        (combo[1][0], combo[0][1], combo[1][1])
+                    )
+    # Obtain spanning trees via depth-first search
+    not_seen = set(range(string_count))
+    stack = deque()
+    traversal = deque()
+    while True:
+        try:
+            tail = stack.pop()
+        except IndexError:
+            try:
+                stack.push(not_seen.pop())
+            except KeyError:
+                # Everything's been seen
+                break
+        for head in graph[tail]:
+            if head[0] in not_seen:
+                stack.push(head[0])
+                not_seen.remove(head[0])
+                traversal.append((tail,) + head)
+    return traversal
+
+def joined_lift(lift, digit, K):
     """ Joins lift according to rules from paper
 
         lift: output of lempels_lift()
         digit: number of digits added to longest strings of same character
             before lifting; this is relevant for determining how to join
+        K: alphabet size
 
-        Return value: lifted sequence as a list of integers
+        Return value: lifted sequence as a deque of integers
     """
     if len(lift) == 1:
         # Just one string from lift; easiest case
@@ -208,12 +393,26 @@ def joined_lift(lift, digit):
     elif digit:
         # Easy case where the join is performed on a lift of the longest string
         # of 1s
-        seq = easy_join(lift, ceil(log(total_length, K)))
+        seq = easy_join(lift, floor(log(sum(map(len, lift)), K)))
     else:
         # Hard case where the join is performed on lifts of the longest string
         # of 1s plus an unspecified character on either side
         assert len(lift) == K # This is true by a lemma in the paper
-
+        total_length = sum(map(len, lift))
+        joined = cycle_join(strings, hard_spanning_trees(
+                    lift, total_length, K, with_constant=True
+                ))
+        if len(joined) > 1:
+            streak_length = floor(log(sum(map(len, lift)), K)) - 1
+            # Need to merge on string of form
+            # (x, x + 1, ... x + streak_length - 1)
+            joined = cycle_join(joined, hard_spanning_trees(
+                    joined, total_length, K, with_constant=False
+                ))
+            assert len(joined) == 1
+        else:
+            assert joined
+        seq = joined[0]
     return seq
 
 def pkl_via_lempels_lift(K, L):
@@ -222,7 +421,7 @@ def pkl_via_lempels_lift(K, L):
         K: alphabet size
         L: desired length
 
-        Return value: P(K)L-sequence as a list of integers
+        Return value: P(K)L-sequence as a deque of integers
     """
     # Decompose into base-K representation
     digits = length_in_base(L, K)
