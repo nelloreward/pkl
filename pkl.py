@@ -139,11 +139,59 @@ def lempels_lift(seq, K):
     repetitions = K // gcd(mod_sum, K)
     lift = []
     for j in range(K * L // repetitions):
-        lift.append([0]*(repetitions * L))
+        lift.append(deque(0 for _ in range(repetitions * L)))
         lift[-1][-1] = j
         for i in range(L * repetitions):
             lift[-1][i] = (lift[-1][i-1] + seq[i % L]) % K
     return lift
+
+def easy_join(lift, streak_length):
+    """ Joins strings in lift on (x, x + 1, ..., x + streak_length - 1)
+
+        Warning: string of form (x, x + 1, ..., x + streak_length - 1) and
+        length streak_length should be unique to each string in lift
+
+        streak_length: length of join string
+        lift: strings to join, where the nth string is 1 + the (n-1)th string
+    """
+    string_length = len(lift[0])
+    total_strings = len(lift)
+    total_length = string_length * total_strings
+    streak_length = ceil(log(total_length, K))
+    streak = 0
+    # So streaks can be detected starting at first character
+    for i in range(string_length - streak_length + 2, string_length):
+        if lift[0][
+                (i - current) % string_length
+            ] % K == (lift[0][
+                    (i - current - 1) % string_length
+                ] - 1) % K:
+            streak += 1
+        else:
+            streak = 0
+    current = 0
+    seq = deque()
+    # Join Lempel's lift shift-rule style
+    for i in range(total_length):
+        if lift[current % total_strings][
+                    (i - current) % string_length
+                ] % K == (
+                lift[current % total_strings][
+                    (i - current - 1) % string_length
+                ] - 1) % K:
+            streak += 1
+        else:
+            streak = 0
+        seq.append(lift[current % total_strings][i - current])
+        if streak == streak_length:
+            # String of form (x, x+1, ..., x+n) found; continue on next
+            # string
+            current += 1
+            # Streak should be reset
+            streak = 0
+    return seq
+
+def hard_join()
 
 def joined_lift(lift, digit):
     """ Joins lift according to rules from paper
@@ -159,41 +207,13 @@ def joined_lift(lift, digit):
         seq = lift[0]
     elif digit:
         # Easy case where the join is performed on a lift of the longest string
-        # of 1s; join Lempel's lift shift-rule style
-        string_length = len(lift[0])
-        total_length = sum(map(len, lift))
-        total_strings = len(lift)
-        streak_length = ceil(log(total_length, K))
-        streak = 0
-        for i in range(string_length - streak_length, string_length):
-            if lift[0][
-                    (i - current) % string_length
-                ] % K == (lift[0][
-                        (i - current - 1) % string_length
-                    ] - 1) % K:
-                streak += 1
-            else:
-                streak = 0
-        current = 0
-        seq = []
-        for i in range(total_length):
-            if streak == streak_length:
-                # String of form (x, x+1, ..., x+n) found; continue on next
-                # string
-                current += 1
-                streak -= 1
-            if lift[current % total_strings][
-                        (i - current) % string_length
-                    ] % K == (
-                    lift[current % total_strings][
-                        (i - current - 1) % string_length
-                    ] - 1) % K:
-                streak += 1
-            else:
-                streak = 0
-            seq.append(lift[current % total_strings][i 0 current])
+        # of 1s
+        seq = easy_join(lift, ceil(log(total_length, K)))
     else:
+        # Hard case where the join is performed on lifts of the longest string
+        # of 1s plus an unspecified character on either side
         assert len(lift) == K # This is true by a lemma in the paper
+
     return seq
 
 def pkl_via_lempels_lift(K, L):
@@ -206,14 +226,29 @@ def pkl_via_lempels_lift(K, L):
     """
     # Decompose into base-K representation
     digits = length_in_base(L, K)
-    for i, digit in enumerate(digits):
-        if seq:
-            # Lengthen seq
-        else:
-            pass
-            # Construct starting sequence [1, 2, ..., digit]
-            seq = list(range(1, digit + 1))
+    seq = deque(range(1, digit + 1))
+    for i, digit in enumerate(digits[1:]):
+        # Lift and join
         seq = joined_lift(lempels_lift(seq, K))
+        # Lengthen seq
+        seq_length = len(seq)
+        streak_length = floor(log(seq_length, K))
+        streak = 0
+        for j in range(seq_length - streak_length + 2, seq_length):
+            if seq[j] % K == seq[j-1] % K:
+                streak += 1
+            else:
+                streak = 0
+        j = 0
+        while j < seq_length + digit:
+            if seq[j] % K == seq[j-1] % K:
+                streak += 1
+            else:
+                streak = 0
+            if streak == streak_length and 1 <= seq[j] <= digit:
+                seq.insert(seq[j], j + 1)
+                j += 1
+            j += 1
     return seq
 
 def help_formatter(prog):
