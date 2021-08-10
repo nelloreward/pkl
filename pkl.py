@@ -364,6 +364,9 @@ def hard_spanning_trees(strings, streak_length, K, with_constant=False):
                     graph[combo[0][0]].append(
                             (combo[1][0], combo[0][1], combo[1][1])
                         )
+                    graph[combo[1][0]].append(
+                            (combo[0][0], combo[1][1], combo[0][1])
+                        )
     else:
         seen = defaultdict(list) # dictionary mapping first character of streak
                                  # to list of tuples, each in the format
@@ -405,6 +408,9 @@ def hard_spanning_trees(strings, streak_length, K, with_constant=False):
                 graph[combo[0][0]].append(
                         (combo[1][0], combo[0][1], combo[1][1])
                     )
+                graph[combo[1][0]].append(
+                            (combo[0][0], combo[1][1], combo[0][1])
+                        )
     # Obtain spanning trees via depth-first search
     not_seen = set(range(string_count))
     stack = deque()
