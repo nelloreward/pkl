@@ -40,6 +40,7 @@ from math import log as mathlog
 from os import remove
 from collections import deque, defaultdict
 from itertools import combinations
+from argparse import ArgumentTypeError
 
 def log(x, b):
     """ Gets around Python's precision issues when computing logs.
@@ -517,6 +518,22 @@ def help_formatter(prog):
     """ So formatter_class's max_help_position can be changed. """
     return argparse.HelpFormatter(prog, max_help_position=40)
 
+def check_alphabet_size(alphabet_size):
+    alphabet_size = int(alphabet_size)
+    if alphabet_size < 2:
+        raise ArgumentTypeError(
+                "-k/--alphabet-size must be an integer >= 2."
+            )
+    return alphabet_size
+
+def check_sequence_length(sequence_length):
+    sequence_length = int(sequence_length)
+    if sequence_length < 2:
+        raise ArgumentTypeError(
+                "-l/--sequence-length/ must be an integer >= 1."
+            )
+    return sequence_length
+
 if __name__ == "__main__":
     import argparse
     from sys import stdin, stderr
@@ -557,13 +574,15 @@ if __name__ == "__main__":
                   "Python3's chain under tempfile.gettempdir() at "
                   "https://docs.python.org/3/library/tempfile.html")
         )
-    construct_parser.add_argument('-k', '--alphabet-size', type=int,
+    construct_parser.add_argument('-k', '--alphabet-size',
             metavar='<int>',
             default=2,
+            type=check_alphabet_size,
             help="alphabet size")
-    construct_parser.add_argument('-l', '--sequence-length', type=int,
+    construct_parser.add_argument('-l', '--sequence-length',
             required=True,
             metavar='<int>',
+            type=check_sequence_length,
             help="sequence length")
     construct_parser.add_argument('-c', '--check', action='store_const',
             const=True,
