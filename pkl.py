@@ -434,14 +434,8 @@ def joined_lift(lift, digit, K):
         seq = lift[0]
     else:
         total_length = sum(map(len, lift))
-        print(lift)
-        print(total_length)
-        print(K)
-        print(log(total_length, K))
         floorlog = floor(log(total_length, K))
         ceillog = ceil(log(total_length, K))
-        print(floorlog)
-        print(ceillog)
         if digit or floorlog == ceillog:
             # Easy case where the join is performed on a lift of the longest
             # string of 1s
