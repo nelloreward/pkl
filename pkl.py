@@ -10,7 +10,13 @@ and verifying that constructed sequences are P(K)L-sequences.
 
 The implementation here is didactic. While it is uses O(L log K) space and
 takes O(L) time, as discussed in the paper above, several optimizations could
-be made.
+be made---most conspicuously that the data structures used could be
+more economical.
+
+The code here generated a size-100,000,000 P(K)L sequence on a size-10 alphabet
+in 57s using a bit over 8 GB of memory on a MacBook Air (M1, 2020) equipped
+with 16 GB RAM and running Python 3.7.3 (default, Jun 19 2019, 07:38:49) 
+[Clang 10.0.1 (clang-1001.0.46.4)] on darwin.
 
 MIT License
 
@@ -556,6 +562,19 @@ if __name__ == "__main__":
             required=True,
             metavar='<int>',
             help='sequence length')
+    construct_parser.add_argument('-c', '--check', action='store_const',
+            const=True,
+            default=False,
+            help=('check that generated sequence is a P(K)L sequence after '
+                  'generating and raise an exception if not; bug-free code '
+                  'should never raise an exception')
+        )
+    construct_parser.add_argument('-s', '--separator', type=str,
+            metavar='<str>',
+            default=None,
+            help=('separator between successive characters in output; '
+                  'default: if -k/--alphabet-size <= 10, there is no '
+                  'separator, and otherwise, a comma is used'))
     args = parser.parse_args()
     if args.subparser_name is None:
         print(_intro, file=stderr)
@@ -572,6 +591,14 @@ if __name__ == "__main__":
     else:
         assert args.subparser_name == "construct"
         seq = pkl_via_lempels_lift(args.alphabet_size, args.sequence_length)
-        print(seq)
-        if check(seq):
-            print("Output is a P(K)L-sequence.", file=stderr)
+        if args.separator is None:
+            if args.alphabet_size > 10:
+                args.separator = ','
+            else:
+                args.separator = ''
+        print(args.separator.join(map(str,seq)))
+        if args.check:
+            if check(seq):
+                print("Output is a P(K)L-sequence.", file=stderr)
+            else:
+                raise RuntimeError("Output is not a P(K)L-sequence.")
