@@ -34,10 +34,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from math import ceil, floor, log, gcd
+from math import ceil, floor, gcd
+from math import log as mathlog
 from os import remove
 from collections import deque, defaultdict
 from itertools import combinations
+
+def log(x, b):
+    """ Gets around Python's precision issues when computing logs.
+
+        x: integer
+        b: integer
+
+        Return value: log_x b
+    """
+    y = b
+    power = 1
+    while y < x:
+        y *= b
+        power += 1
+    if y == x:
+        return power
+    return mathlog(x, b)
 
 def check(seq, low_mem=False, temp_dir=None):
     """ Checks if a (circular) string is a P(K)L-sequence.
@@ -416,8 +434,14 @@ def joined_lift(lift, digit, K):
         seq = lift[0]
     else:
         total_length = sum(map(len, lift))
+        print(lift)
+        print(total_length)
+        print(K)
+        print(log(total_length, K))
         floorlog = floor(log(total_length, K))
         ceillog = ceil(log(total_length, K))
+        print(floorlog)
+        print(ceillog)
         if digit or floorlog == ceillog:
             # Easy case where the join is performed on a lift of the longest
             # string of 1s
