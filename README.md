@@ -35,6 +35,6 @@ Run
         
         for i in {1..32}; do python3 count.py -k 2 -l $i; done
  
-to perform exhaustive searches recovering the counts of binary P(K)L sequences for sequence lengths between 1 and 32 displayed in Table 1 of the paper.
+in Bash to perform exhaustive searches recovering the counts of binary P(K)L sequences for sequence lengths between 1 and 32 displayed in Table 1 of the paper.
   
          
