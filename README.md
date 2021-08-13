@@ -29,7 +29,7 @@ This repo contains software to accompany the paper Arbitrary-length analogs to d
         python3 pkl.py construct --help
         python3 pkl.py test --help
 
-## Use in your own software
+## Use in your software
         
         from pkl import pkl_via_lempels_lift
         
