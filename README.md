@@ -2,7 +2,7 @@
 
 This repo contains software to accompany the paper Arbitrary-length analogs to de Bruijn sequences, by [Abhinav Nellore](https://nellore.bio) and [Rachel Ward](https://sites.google.com/prod/view/rward).
 
-## Quick start
+## Use at the command line
 
 * Construct a P(K)L-sequence of length <sequence_length> on the alphabet {0, 1, ..., K - 1} of size <alphabet_size> with
 
@@ -35,7 +35,7 @@ This repo contains software to accompany the paper Arbitrary-length analogs to d
         
         pkl_sequence = pkl_via_lempels_lift(4, 1000) # Stores a length-1,000 P(K)L sequence on the size-4 alphabet {0, 1, 2, 3} in the list pkl_sequence
 
-## Regenerating Table 1 from paper
+## Regenerate Table 1 from paper
         
 Run
         
