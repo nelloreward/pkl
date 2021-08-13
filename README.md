@@ -29,8 +29,14 @@ This repo contains software to accompany the paper Arbitrary-length analogs to d
         python3 pkl.py construct --help
         python3 pkl.py test --help
 
- ## Regenerating Table 1 from paper
-  
+## Use in your own software
+        
+        from pkl import pkl_via_lempels_lift
+        
+        pkl_sequence = pkl_via_lempels_lift(4, 1000) # Stores a length-1,000 P(K)L sequence on the size-4 alphabet {0, 1, 2, 3} in the list pkl_sequence
+
+## Regenerating Table 1 from paper
+        
 Run
         
         for i in {1..32}; do python3 count.py -k 2 -l $i; done
