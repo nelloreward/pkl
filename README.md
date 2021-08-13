@@ -33,7 +33,7 @@ This repo contains software to accompany the paper Arbitrary-length analogs to d
         
         from pkl import pkl_via_lempels_lift
         
-        pkl_sequence = pkl_via_lempels_lift(4, 1000) # Stores a length-1,000 P(K)L sequence on the size-4 alphabet {0, 1, 2, 3} in the list pkl_sequence
+        pkl_sequence = pkl_via_lempels_lift(4, 1000) # Stores a length-1,000 P(K)L-sequence on the size-4 alphabet {0, 1, 2, 3} in the list pkl_sequence
 
 ## Regenerate Table 1 from paper
         
@@ -41,6 +41,6 @@ Run
         
         for i in {1..32}; do python3 count.py -k 2 -l $i; done
  
-in Bash to perform exhaustive searches recovering the counts of binary P(K)L sequences for sequence lengths between 1 and 32 displayed in Table 1 of the paper.
+in Bash to perform exhaustive searches recovering the counts of binary P(K)L-sequences for sequence lengths between 1 and 32 displayed in Table 1 of the paper.
   
          
