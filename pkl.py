@@ -10,8 +10,9 @@ and verifying that constructed sequences are P(K)L-sequences.
 
 The implementation here is didactic. While it is uses O(L log K) space and
 takes O(L) time, as discussed in the paper above, several optimizations could
-be made---most conspicuously that the data structures used could be
-more economical.
+be made---conspicuously that (1) the data structures used could be
+more economical, and (2) certain searches for join strings could be
+performed while constructing lifts.
 
 MIT License
 
@@ -209,7 +210,7 @@ def cycle_join(strings, spanning_trees):
     """ Joins circular strings in a Lempel's lift according to spanning trees
 
         Spanning trees are of "join graph" from function description of
-        spanning_trees(). SIDE EFFECT: spanning_trees gets eaten
+        hard_spanning_tree(). SIDE EFFECT: spanning_trees gets eaten
 
         strings: list of deques representing circular strings to join
         spanning_trees: deque of tuples, each representing an edge and of the
@@ -220,7 +221,7 @@ def cycle_join(strings, spanning_trees):
              start pos of join substring in end vertex string).
 
             Edges should be ordered as the result of appending depth-first
-            traversals of the spanning trees to a deque.
+            traversals of (connected components of) a graph to a deque.
 
         Return value: list of lists, each giving a joined string for a
             spanning tree
@@ -271,21 +272,16 @@ def cycle_join(strings, spanning_trees):
                     ) % len(strings[head])
     return list(map(list, joined))
 
-def hard_spanning_trees(strings, streak_length, K, with_constant=False):
-    """ Gives spanning trees of connected components of join graph of strings
+def hard_spanning_tree(strings, streak_length, K):
+    """ Gives spanning tree of a connected component of join graph of strings
 
         The "join graph" of strings is a graph where each vertex represents a
         string from strings, and each (undirected) edge is labeled by
-
-        (when with_constant=True)
         a substring of the form (y, x, x + 1, ..., x + streak_length - 1) or
-        (x, x + 1, ..., x + streak_length - 1, y)
-
-        (when with_constant=False)
-        a substring of the form (x, x+1, ..., x + streak_length - 1)
-
-        at which a join can be performed between the strings corresponding to
-        the vertices it connects.
+        (x, x + 1, ..., x + streak_length - 1, y) a substring of the form
+        (x, x+1, ..., x + streak_length - 1) at which a join can be performed
+        between the strings corresponding to the vertices it connects. An
+        arbitrary connected component is DFS'd to obtain a spanning tree.
 
         strings: list of deques representing circular strings
         streak_length: length of streak in substring
@@ -299,127 +295,79 @@ def hard_spanning_trees(strings, streak_length, K, with_constant=False):
              start pos of join substring in start vertex string,
              start pos of join substring in end vertex string).
 
-            Edges are ordered from appending depth-first traversals of the
-            spanning trees to a deque.
+            Edges are ordered according to a depth-first traversal of an
+            arbitrary connected component of the join graph to a deque.
     """
     string_count = len(strings)
-    if with_constant:
-        seen_next = defaultdict(list) # dictionary mapping first character of
-                                      # streak and character seen AFTER streak
-                                      # to list of tuples, each in format
-                                      # (vertex index, substring position)
-        seen_prev = defaultdict(list) # dictionary mapping first character of
-                                      # streak and character seen BEFORE streak
-                                      # to list of tuples, each in format
-                                      # (vertex index, substring position)
-        for i in range(string_count):
-            string_length = len(strings[i])
-            streak = 1
-            # So streaks can be detected starting at first character
-            for j in range(string_length - streak_length + 2, string_length):
-                if strings[i][j % string_length] % K == (strings[i][
-                        (j - 1) % string_length
-                    ] + 1) % K:
-                    streak += 1
-                else:
-                    streak = 1
-            for j in range(string_length):
-                if strings[i][j % string_length] % K == (strings[i][
-                        (j - 1) % string_length
-                    ] + 1) % K:
-                    streak += 1
-                else:
-                    streak = 1
-                if streak == streak_length:
-                    seen_next[
-                            (strings[i][(j - streak + 1) % string_length],
-                             strings[i][(j + 1) % string_length])
-                        ].append((i, (j - streak + 1) % string_length))
-                    seen_prev[
-                            (strings[i][(j - streak + 1) % string_length],
-                             strings[i][(j - streak) % string_length])
-                        ].append((i, (j - streak) % string_length))
-                elif streak > streak_length:
-                    assert streak_length == streak - 1
-                    seen_next[
-                            (strings[i][(j - streak + 2) % string_length],
-                             strings[i][(j + 1) % string_length])
-                        ].append((i, (j - streak + 2) % string_length))
-                    seen_prev[
-                            (strings[i][(j - streak + 2) % string_length],
-                             strings[i][(j - streak + 1) % string_length])
-                        ].append((i, (j - streak + 1) % string_length))
-        # Construct graph
-        graph = [[] for _ in range(string_count)] # List of lists of 
-                                                  # (head index,
-                                                  # start pos of tail,
-                                                  # start pos of head)
-        for seen in (seen_prev, seen_next):
-            for substring in seen:
-                for combo in combinations(seen[substring], 2):
-                    graph[combo[0][0]].append(
-                            (combo[1][0], combo[0][1], combo[1][1])
-                        )
-                    graph[combo[1][0]].append(
-                            (combo[0][0], combo[1][1], combo[0][1])
-                        )
-    else:
-        seen = defaultdict(list) # dictionary mapping first character of streak
-                                 # to list of tuples, each in the format
-                                 # (vertex index, substring position)
-        for i in range(string_count):
-            string_length = len(strings[i])
-            streak = 1
-            # So streaks can be detected starting at first character
-            for j in range(string_length - streak_length + 2, string_length):
-                if strings[i][j % string_length] % K == (strings[i][
-                        (j - 1) % string_length
-                    ] + 1) % K:
-                    streak += 1
-                else:
-                    streak = 1
-            for j in range(string_length):
-                if strings[i][j % string_length] % K == (strings[i][
-                        (j - 1) % string_length
-                    ] + 1) % K:
-                    streak += 1
-                else:
-                    streak = 1
-                if streak == streak_length:
-                    seen[strings[i][(j - streak + 1) % string_length]].append(
-                            (i, (j - streak + 1) % string_length)
-                        )
-                elif streak > streak_length:
-                    assert streak_length == streak - 1
-                    seen[strings[i][(j - streak + 2) % string_length]].append(
-                            (i, (j - streak + 2) % string_length)
-                        )
-        # Construct graph
-        graph = [[] for _ in range(string_count)] # List of lists of
-                                                  # (head index,
-                                                  # start pos of tail,
-                                                  # start pos of head)
+    seen_next = defaultdict(list) # dictionary mapping first character of
+                                  # streak and character seen AFTER streak
+                                  # to list of tuples, each in format
+                                  # (vertex index, substring position)
+    seen_prev = defaultdict(list) # dictionary mapping first character of
+                                  # streak and character seen BEFORE streak
+                                  # to list of tuples, each in format
+                                  # (vertex index, substring position)
+    for i in range(string_count):
+        string_length = len(strings[i])
+        streak = 1
+        # So streaks can be detected starting at first character
+        for j in range(string_length - streak_length + 2, string_length):
+            if strings[i][j % string_length] % K == (strings[i][
+                    (j - 1) % string_length
+                ] + 1) % K:
+                streak += 1
+            else:
+                streak = 1
+        for j in range(string_length):
+            if strings[i][j % string_length] % K == (strings[i][
+                    (j - 1) % string_length
+                ] + 1) % K:
+                streak += 1
+            else:
+                streak = 1
+            if streak == streak_length:
+                seen_next[
+                        (strings[i][(j - streak + 1) % string_length],
+                         strings[i][(j + 1) % string_length])
+                    ].append((i, (j - streak + 1) % string_length))
+                seen_prev[
+                        (strings[i][(j - streak + 1) % string_length],
+                         strings[i][(j - streak) % string_length])
+                    ].append((i, (j - streak) % string_length))
+            elif streak > streak_length:
+                assert streak_length == streak - 1
+                seen_next[
+                        (strings[i][(j - streak + 2) % string_length],
+                         strings[i][(j + 1) % string_length])
+                    ].append((i, (j - streak + 2) % string_length))
+                seen_prev[
+                        (strings[i][(j - streak + 2) % string_length],
+                         strings[i][(j - streak + 1) % string_length])
+                    ].append((i, (j - streak + 1) % string_length))
+    # Construct graph
+    graph = [[] for _ in range(string_count)] # List of lists of 
+                                              # (head index,
+                                              # start pos of tail,
+                                              # start pos of head)
+    for seen in (seen_prev, seen_next):
         for substring in seen:
             for combo in combinations(seen[substring], 2):
                 graph[combo[0][0]].append(
                         (combo[1][0], combo[0][1], combo[1][1])
                     )
                 graph[combo[1][0]].append(
-                            (combo[0][0], combo[1][1], combo[0][1])
-                        )
-    # Obtain spanning trees via depth-first search
+                        (combo[0][0], combo[1][1], combo[0][1])
+                    )
+    # Obtain spanning tree via depth-first search
     not_seen = set(range(string_count))
-    stack = deque()
+    stack = deque([not_seen.pop()])
     traversal = deque()
     while True:
         try:
             tail = stack.pop()
         except IndexError:
-            try:
-                tail = not_seen.pop()
-            except KeyError:
-                # Everything's been seen
-                break
+            # Connected component traversed
+            break
         for head in graph[tail]:
             if head[0] in not_seen:
                 stack.append(head[0])
@@ -451,26 +399,30 @@ def joined_lift(lift, digit, K):
         else:
             # Hard case where the join is performed on lifts of the longest
             # string of 1s plus an unspecified character on either side
-            trees = hard_spanning_trees(
-                        lift, floorlog - 1, K, with_constant=True
-                    )
-            if trees:
-                joined = cycle_join(lift, trees)
-                if len(joined) > 1:
+            tree = hard_spanning_tree(lift, floorlog - 1, K)
+            if tree:
+                tree_count = len(lift) // (len(tree) + 1)
+                joined = cycle_join(lift, tree)
+                if tree_count > 1:
                     # Need to merge on string of form
                     # (x, x + 1, ... x + streak_length - 1)
-                    joined = cycle_join(joined, hard_spanning_trees(
-                            joined, floorlog - 1, K, with_constant=False
-                        ))
-                    assert len(joined) == 1
+                    # First, create other necklaces
+                    q = list(map(len, el) for el in joined)
+                    for index in range(1, tree_count):
+                        joined.append([(el + index) % K for el in joined[0]])
+                    seq = cycle_join(
+                                joined,
+                                easy_hamiltonian_path(joined, floorlog, K)
+                            )[0]
                 else:
-                    assert joined
+                    seq = joined[0]
             else:
-                joined = cycle_join(lift, hard_spanning_trees(
-                            lift, floorlog - 1, K, with_constant=False
-                        ))
-                assert len(joined) == 1
-            seq = joined[0]
+                # Need to merge on string of form
+                # (x, x + 1, ... x + streak_length - 1)
+                seq = cycle_join(
+                            lift,
+                            easy_hamiltonian_path(lift, floorlog, K)
+                        )[0]
     return seq
 
 def pkl_via_lempels_lift(K, L):
@@ -647,7 +599,7 @@ if __name__ == "__main__":
                 args.separator = ''
         print(args.separator.join(map(str,seq)))
         if args.check:
-            if check(seq):
+            if len(seq) == args.sequence_length and check(seq):
                 print("Output is a P(K)L-sequence.", file=stderr)
             else:
                 raise RuntimeError("Output is not a P(K)L-sequence.")
