@@ -1,6 +1,6 @@
 # P(K)L-sequence construction
 
-This repo contains software to accompany the paper *Arbitrary-length analogs to de Bruijn sequences*, by [Abhinav Nellore](https://nellore.bio) and [Rachel Ward](https://sites.google.com/prod/view/rward).
+This repo contains software to accompany the paper [*Arbitrary-length analogs to de Bruijn sequences*](https://arxiv.org/abs/2108.07759), by [Abhinav Nellore](https://nellore.bio) and [Rachel Ward](https://sites.google.com/prod/view/rward).
 
 ## Use at the command line
 
