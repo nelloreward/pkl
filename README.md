@@ -4,7 +4,7 @@ This repo contains software to accompany the paper [*Arbitrary-length analogs to
 
 ## Use at the command line
 
-* Construct a P(K)L-sequence of length <sequence_length> on the alphabet {0, 1, ..., K - 1} of size <alphabet_size> with
+* Construct a P(K)L-sequence of length <sequence_length> on the alphabet {0, 1, ..., <alphabet size> - 1} with
 
         python3 pkl.py construct -l <sequence_length> -k <alphabet_size>
   Running
