@@ -2,9 +2,9 @@ This repo contains software for constructing $P^{(K)}_L$-sequences to accompany 
 
 ## Use at the command line
 
-* Construct a $P^{(K)}_L$-sequence of length <sequence_length> on the alphabet {0, 1, ..., <alphabet_size> - 1} with
+* Construct a $P^{(K)}_L$-sequence of length $L$ on the alphabet {0, 1, $\ldots$, $K$ - 1} with
 
-        python3 pkl.py construct -l <sequence_length> -k <alphabet_size>
+        python3 pkl.py construct -l L -k K
   Running
 
         time python3 pkl.py construct -l 100000000 -k 7
