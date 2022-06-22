@@ -4,33 +4,10 @@ This repo contains software for constructing arbitrary-length analogs to de Brui
 
 ## Errata
 
-The published version of our paper has minor errors resolved as follows:
+The [published version](https://drops.dagstuhl.de/opus/volltexte/2022/16136/) of our paper has minor errors resolved as follows:
 * In the procedure `GeneratePKL` (Algorithm 2), to properly address de Bruijn sequence-length edge cases, use $N := \lfloor \log_K L \rfloor + 1$ instead of $N := \lceil \log_K L \rceil$, except when inside the procedure `LiftAndJoin` (Algorithm 1) called on Line 5, where $N := \lceil \log_K L \rceil$ should be used as in the text. References to $N$ in the proof of Theorem 9 should be interpreted to respect this change.
 * For the same reason, in the procedure `GenerateP2L` (Algorithm 3), use $N := \lfloor \log_2 L \rfloor + 1$ instead of $N := \lceil \log_2 L \rceil$.
 * Equation (8) should read:    $L_j = K \cdot L_{j-1} + d_j \quad j \in ${$1, 2, \ldots, N-1$}.
-
-## Cite us
-
-If you use our software, please cite this repo as well as our paper
-
-        @InProceedings{nellore_et_al:LIPIcs.CPM.2022.9,
-          author = {Nellore, Abhinav and Ward, Rachel},
-          title = {{Arbitrary-Length Analogs to de Bruijn Sequences}},
-          booktitle = {33rd Annual Symposium on Combinatorial Pattern Matching (CPM 2022)},
-          pages = {9:1--9:20},
-          series = {Leibniz International Proceedings in Informatics (LIPIcs)},
-          ISBN = {978-3-95977-234-1},
-          ISSN = {1868-8969},
-          year = {2022},
-          volume = {223},
-          editor = {Bannai, Hideo and Holub, Jan},
-          publisher = {Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
-          address = {Dagstuhl, Germany},
-          URL =	{https://drops.dagstuhl.de/opus/volltexte/2022/16136},
-          URN =	{urn:nbn:de:0030-drops-161361},
-          doi =	{10.4230/LIPIcs.CPM.2022.9},
-          annote = {Keywords: de Bruijn sequence, de Bruijn word, Lempel’s D-morphism, Lempel’s homomorphism}
-        }
 
 ## Use at the command line
 
@@ -73,4 +50,25 @@ Run
  
 in Bash to perform exhaustive searches recovering the counts of binary $P^{(K)}_L$-sequences for sequence lengths between 1 and 32 displayed in Table 1 of the paper.
   
-         
+## Cite us
+
+If you use our software, please cite this repo as well as our paper
+
+        @InProceedings{nellore_et_al:LIPIcs.CPM.2022.9,
+          author = {Nellore, Abhinav and Ward, Rachel},
+          title = {{Arbitrary-Length Analogs to de Bruijn Sequences}},
+          booktitle = {33rd Annual Symposium on Combinatorial Pattern Matching (CPM 2022)},
+          pages = {9:1--9:20},
+          series = {Leibniz International Proceedings in Informatics (LIPIcs)},
+          ISBN = {978-3-95977-234-1},
+          ISSN = {1868-8969},
+          year = {2022},
+          volume = {223},
+          editor = {Bannai, Hideo and Holub, Jan},
+          publisher = {Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+          address = {Dagstuhl, Germany},
+          URL =	{https://drops.dagstuhl.de/opus/volltexte/2022/16136},
+          URN =	{urn:nbn:de:0030-drops-161361},
+          doi =	{10.4230/LIPIcs.CPM.2022.9},
+          annote = {Keywords: de Bruijn sequence, de Bruijn word, Lempel’s D-morphism, Lempel’s homomorphism}
+        }
