@@ -1,6 +1,6 @@
 ## Construct arbitrary-length analogs to de Bruijn sequences
 
-This repo contains software for constructing $P^{(K)}_L$-sequences to accompany our [CPM 2022](http://www.stringology.org/event/CPM2022/) paper [*Arbitrary-length analogs to de Bruijn sequences*](https://drops.dagstuhl.de/opus/volltexte/2022/16136/).
+This repo contains software for constructing arbitrary-length analogs to de Bruijn sequences, which we call $P^{(K)}_L$-sequences. It accompanies our [CPM 2022](http://www.stringology.org/event/CPM2022/) paper [*Arbitrary-length analogs to de Bruijn sequences*](https://drops.dagstuhl.de/opus/volltexte/2022/16136/).
 
 ## Errata
 
