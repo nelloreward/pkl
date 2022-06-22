@@ -1,10 +1,10 @@
 ## Construction of arbitrary-length analogs to de Bruijn sequences
 
-This repo contains software for constructing $P^{(K)}_L$-sequences to accompany our [CPM 2022](http://www.stringology.org/event/CPM2022/) paper [*Arbitrary-length analogs to de Bruijn sequences*](https://drops.dagstuhl.de/opus/volltexte/2022/16136/), by [Abhinav Nellore](https://nellore.bio) and [Rachel Ward](https://sites.google.com/prod/view/rward).
+This repo contains software for constructing $P^{(K)}_L$-sequences to accompany the [CPM 2022](http://www.stringology.org/event/CPM2022/) paper [*Arbitrary-length analogs to de Bruijn sequences*](https://drops.dagstuhl.de/opus/volltexte/2022/16136/), by [Abhinav Nellore](https://nellore.bio) and [Rachel Ward](https://sites.google.com/prod/view/rward).
 
 ## Citation
 
-If you use our software, please cite this repo as well as our paper:
+If you use our software, please cite this repo as well as our paper
 
         @InProceedings{nellore_et_al:LIPIcs.CPM.2022.9,
           author = {Nellore, Abhinav and Ward, Rachel},
