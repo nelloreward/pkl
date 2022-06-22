@@ -5,7 +5,7 @@ This repo contains software for constructing $P^{(K)}_L$-sequences to accompany 
 ## Errata
 
 The published version of our paper has a couple minor errors resolved as follows:
-* In the procedure `GeneratePKL` (Algorithm 2), to properly address de Bruijn sequence-length edge cases, use $N := \lfloor \log_K L \rfloor + 1$ instead of $N := \lceil \log_K L \rceil$, except when inside the procedure `LiftAndJoin` (Algorithm 1) called on Line 5, where $N := \lceil \log_K L \rceil$ should be used as in the text. References to $N$ in the proof of Theorem 9 should interpreted to respect this change.
+* In the procedure `GeneratePKL` (Algorithm 2), to properly address de Bruijn sequence-length edge cases, use $N := \lfloor \log_K L \rfloor + 1$ instead of $N := \lceil \log_K L \rceil$, except when inside the procedure `LiftAndJoin` (Algorithm 1) called on Line 5, where $N := \lceil \log_K L \rceil$ should be used as in the text. References to $N$ in the proof of Theorem 9 should be interpreted to respect this change.
 * For the same reason, in the procedure `GenerateP2L` (Algorithm 3), use $N := \lfloor \log_2 L \rfloor + 1$ instead of $N := \lceil \log_2 L \rceil$.
 * Equation (8) should read as:    $L_j = K \cdot L_{j-1} + d_j \quad j \in ${$1, 2, \ldots, N-1$}.
 
