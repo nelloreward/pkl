@@ -9,7 +9,7 @@ The [published version](https://drops.dagstuhl.de/opus/volltexte/2022/16136/) of
 * For the same reason, in the procedure `GenerateP2L` (Algorithm 3), use $N := \lfloor \log_2 L \rfloor + 1$ instead of $N := \lceil \log_2 L \rceil$.
 * Equation (8) should read:    $L_j = K \cdot L_{j-1} + d_j \quad j \in ${$1, 2, \ldots, N-1$}.
 
-## Use at the command line
+## Use our software at the command line
 
 * Construct a $P^{(K)}_L$-sequence of length $L$ on the alphabet {$0, 1, \ldots, K - 1$} with
 
@@ -42,7 +42,7 @@ The [published version](https://drops.dagstuhl.de/opus/volltexte/2022/16136/) of
         
         pkl_sequence = pkl_via_lempels_lift(4, 1000) # Stores a length-1,000 $P^{(K)}_L$-sequence on the size-4 alphabet {0, 1, 2, 3} in the list pkl_sequence
 
-## Regenerate Table 1 from paper
+## Regenerate Table 1 from our paper
         
 Run
         
