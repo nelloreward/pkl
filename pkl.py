@@ -586,7 +586,7 @@ if __name__ == "__main__":
             if not args.separator:
                 seq = list(input_stream.read().strip())
             else:
-                input_stream.read().strip().split(args.separator)
+                seq = input_stream.read().strip().split(args.separator)
         if not check(seq, low_mem=args.low_memory, temp_dir=args.temp_dir):
             raise RuntimeError('Input is not a P(K)L-sequence.')
         print("Input is a P(K)L-sequence.", file=stderr)
