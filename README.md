@@ -1,6 +1,10 @@
 ## Arbitrary-length analogs to de Bruijn sequences
 
-This repo contains software for constructing arbitrary-length analogs to de Bruijn sequences, which we call $P^{(K)}_L$-sequences. It accompanies our [CPM 2022](http://www.stringology.org/event/CPM2022/) paper [*Arbitrary-length analogs to de Bruijn sequences*](https://drops.dagstuhl.de/opus/volltexte/2022/16136/). Watch the talk [here](https://youtu.be/DWqCtDCjpBY).
+This repo contains software for constructing arbitrary-length analogs to de Bruijn sequences, which we call $P^{(K)}_L$-sequences. It accompanies our [CPM 2022](http://www.stringology.org/event/CPM2022/) paper [*Arbitrary-length analogs to de Bruijn sequences*](https://drops.dagstuhl.de/opus/volltexte/2022/16136/) introducing them. Watch Abhi's talk [here](https://youtu.be/DWqCtDCjpBY).
+
+## Accessible introduction & code in C
+
+[Joe Sawada](http://www.socs.uoguelph.ca/~sawada/), an expert in combinatorial generation, maintains [debruijnsequence.org](debruijnsequence.org), a superlative resource on de Bruijn sequence and universal cycle construction. Check out [http://debruijnsequence.org/db/cutdown](http://debruijnsequence.org/db/cutdown) for an accessible introduction to $P^{(K)}_L$-sequences and other cut-down de Bruijn sequences as well as a performant implementation of our algorithm in C.
 
 ## Minor errors in publication
 
