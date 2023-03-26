@@ -4,7 +4,7 @@ This repo contains software for constructing arbitrary-length analogs to de Brui
 
 ## Accessible introduction & code in C
 
-[Joe Sawada](http://www.socs.uoguelph.ca/~sawada/), an expert in combinatorial generation, maintains [debruijnsequence.org](debruijnsequence.org), a superlative resource on de Bruijn sequence and universal cycle construction. Check out [http://debruijnsequence.org/db/cutdown](http://debruijnsequence.org/db/cutdown) for an accessible introduction to $P^{(K)}_L$-sequences and other cut-down de Bruijn sequences as well as a performant implementation of our algorithm in C.
+[Joe Sawada](http://www.socs.uoguelph.ca/~sawada/), an expert on combinatorial generation, maintains [debruijnsequence.org](debruijnsequence.org), a superlative resource on de Bruijn sequence and universal cycle construction. Check out [debruijnsequence.org/db/cutdown](debruijnsequence.org/db/cutdown) for an accessible introduction to $P^{(K)}_L$-sequences and other cut-down de Bruijn sequences as well as a performant implementation of our algorithm in C.
 
 ## Minor errors in publication
 
